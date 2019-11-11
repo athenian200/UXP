@@ -57,12 +57,16 @@
  *
  * We don't want to require use of libxp when linking with libldap, so
  * I'll leave use of xp_qsort as a MOZILLA_CLIENT-only thing for now. --mcs
+ *
+ * XP_QSORT no longer exists, was replaced with nsQuickSort. This fix 
+ * actually breaks Solaris now. --athenian200
+ *
+ *#if defined(MOZILLA_CLIENT) && defined(SOLARIS)
+ *#include "xp_qsort.h"
+ *#else
+ *#define XP_QSORT qsort
+ *#endif
  */
-#if defined(MOZILLA_CLIENT) && defined(SOLARIS)
-#include "xp_qsort.h"
-#else
-#define XP_QSORT qsort
-#endif
 
 typedef struct keycmp {
     void                 *kc_arg;
@@ -142,7 +146,7 @@ ldap_keysort_entries(
 	}
 	last = e;
 
-	XP_QSORT( (void*)kt, count, (size_t)sizeof(keything_t*), ldapi_keycmp );
+	qsort( (void*)kt, count, (size_t)sizeof(keything_t*), ldapi_keycmp );
     
 	ep = chain;
 	for ( i = 0; i < count; i++ ) {
@@ -295,7 +299,7 @@ ldap_multisort_entries(
 	last = e;
 
 	et_cmp_fn = (LDAP_CHARCMP_CALLBACK *)cmp;
-	XP_QSORT( (void *) et, (size_t) count,
+	qsort( (void *) et, (size_t) count,
 		(size_t) sizeof(struct entrything), et_cmp );
 
 	ep = chain;
@@ -349,7 +353,7 @@ ldap_sort_values(
 	for ( nel = 0; vals[nel] != NULL; nel++ )
 		;	/* NULL */
 
-	XP_QSORT( vals, nel, sizeof(char *), (LDAP_VOIDCMP_CALLBACK *)cmp );
+	qsort( vals, nel, sizeof(char *), (LDAP_VOIDCMP_CALLBACK *)cmp );
 
 	return( LDAP_SUCCESS );
 }
