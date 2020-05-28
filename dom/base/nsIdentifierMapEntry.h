@@ -15,18 +15,24 @@
 
 #include "mozilla/MemoryReporting.h"
 #include "mozilla/Move.h"
-#include "mozilla/dom/Element.h"
 #include "mozilla/net/ReferrerPolicy.h"
 
 #include "nsCOMArray.h"
 #include "nsCOMPtr.h"
-#include "nsContentList.h"
 #include "nsIAtom.h"
-#include "nsIDocument.h"
 #include "nsTArray.h"
 #include "nsTHashtable.h"
+#include "nsHashKeys.h"
 
 class nsIContent;
+class nsContentList;
+class nsBaseContentList;
+
+namespace mozilla {
+namespace dom {
+  class Element;
+} // namespace dom
+} // namespace mozilla
 
 /**
  * Right now our identifier map entries contain information for 'name'
@@ -42,23 +48,19 @@ class nsIContent;
  */
 class nsIdentifierMapEntry : public nsStringHashKey
 {
-public:
   typedef mozilla::dom::Element Element;
-  typedef mozilla::net::ReferrerPolicy ReferrerPolicy;
+  //typedef mozilla::net::ReferrerPolicy ReferrerPolicy;
 
-  explicit nsIdentifierMapEntry(const nsAString& aKey) :
-    nsStringHashKey(&aKey), mNameContentList(nullptr)
-  {
-  }
-  explicit nsIdentifierMapEntry(const nsAString* aKey) :
-    nsStringHashKey(aKey), mNameContentList(nullptr)
-  {
-  }
-  nsIdentifierMapEntry(const nsIdentifierMapEntry& aOther) :
-    nsStringHashKey(&aOther.GetKey())
-  {
-    NS_ERROR("Should never be called");
-  }
+  /**
+   * @see nsIDocument::IDTargetObserver, this is just here to avoid include
+   * hell.
+   */
+  typedef bool (* IDTargetObserver)(Element* aOldElement,
+                                    Element* aNewelement, void* aData);
+public:
+  explicit nsIdentifierMapEntry(const nsAString& aKey);
+  explicit nsIdentifierMapEntry(const nsAString* aKey);
+  nsIdentifierMapEntry(nsIdentifierMapEntry&& aOther);
   ~nsIdentifierMapEntry();
 
   void AddNameElement(nsINode* aDocument, Element* aElement);
@@ -67,9 +69,7 @@ public:
   nsBaseContentList* GetNameContentList() {
     return mNameContentList;
   }
-  bool HasNameElement() const {
-    return mNameContentList && mNameContentList->Length() != 0;
-  }
+  bool HasNameElement() const;
 
   /**
    * Returns the element if we know the element associated with this
@@ -109,9 +109,9 @@ public:
   bool HasIdElementExposedAsHTMLDocumentProperty();
 
   bool HasContentChangeCallback() { return mChangeCallbacks != nullptr; }
-  void AddContentChangeCallback(nsIDocument::IDTargetObserver aCallback,
+  void AddContentChangeCallback(IDTargetObserver aCallback,
                                 void* aData, bool aForImage);
-  void RemoveContentChangeCallback(nsIDocument::IDTargetObserver aCallback,
+  void RemoveContentChangeCallback(IDTargetObserver aCallback,
                                 void* aData, bool aForImage);
 
   /**
@@ -122,7 +122,7 @@ public:
   void Traverse(nsCycleCollectionTraversalCallback* aCallback);
 
   struct ChangeCallback {
-    nsIDocument::IDTargetObserver mCallback;
+    IDTargetObserver mCallback;
     void* mData;
     bool mForImage;
   };
