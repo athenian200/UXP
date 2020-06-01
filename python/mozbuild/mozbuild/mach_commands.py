@@ -1218,6 +1218,12 @@ class RunProgram(MachCommandBase):
             args = ['']
 
         else:
+            if sys.platform in ('solaris', 'sunos5'):
+                try:
+                    os.environ['LD_LIBRARY_PATH'] = os.path.dirname(self.get_binary_path('app'))
+                except Exception as e:
+                    print("Failed to set LD_LIBRARY_PATH.")
+                    return 1
 
             try:
                 binpath = self.get_binary_path('app')
