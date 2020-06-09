@@ -11,6 +11,7 @@
 #include "nsIdentifierMapEntry.h"
 #include "nsContentListDeclarations.h"
 #include "nsNameSpaceManager.h"
+#include "mozilla/dom/NameSpaceConstants.h"
 
 class nsContentList;
 class nsINode;
@@ -32,12 +33,23 @@ class ShadowRoot;
  */
 class StyleScope
 {
+  enum class Kind {
+    Document,
+    ShadowRoot,
+  };
+
 public:
-  virtual nsINode& AsNode() = 0;
+  explicit StyleScope(nsIDocument*);
+  explicit StyleScope(mozilla::dom::ShadowRoot*);
+
+  nsINode& AsNode()
+  {
+    return *mAsNode;
+  }
 
   const nsINode& AsNode() const
   {
-    return const_cast<StyleScope&>(*this).AsNode();
+    return *mAsNode;
   }
 
   StyleSheet* SheetAt(size_t aIndex) const
@@ -116,6 +128,9 @@ protected:
    *    new ones for IDs.
    */
   nsTHashtable<nsIdentifierMapEntry> mIdentifierMap;
+
+  nsINode* mAsNode;
+  const Kind mKind;
 
 };
 

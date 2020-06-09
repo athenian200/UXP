@@ -57,10 +57,11 @@ class nsIdentifierMapEntry : public nsStringHashKey
    */
   typedef bool (* IDTargetObserver)(Element* aOldElement,
                                     Element* aNewelement, void* aData);
+
 public:
-  explicit nsIdentifierMapEntry(const nsAString& aKey);
-  explicit nsIdentifierMapEntry(const nsAString* aKey);
-  nsIdentifierMapEntry(nsIdentifierMapEntry&& aOther);
+  explicit nsIdentifierMapEntry(KeyType aKey);
+  explicit nsIdentifierMapEntry(KeyTypePointer aKey);
+  nsIdentifierMapEntry(const nsIdentifierMapEntry& aOther);
   ~nsIdentifierMapEntry();
 
   void AddNameElement(nsINode* aDocument, Element* aElement);

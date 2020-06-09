@@ -57,12 +57,6 @@ public:
     return mMode == ShadowRootMode::Closed;
   }
 
-  // StyleScope.
-  nsINode& AsNode() final
-  {
-    return *this;
-  }
-
   // [deprecated] Shadow DOM v0
   void InsertSheet(StyleSheet* aSheet, nsIContent* aLinkingContent);
   void RemoveSheet(StyleSheet* aSheet);

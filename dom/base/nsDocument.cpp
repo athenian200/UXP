@@ -300,24 +300,20 @@ GetHttpChannelHelper(nsIChannel* aChannel, nsIHttpChannel** aHttpChannel)
 
 #define NAME_NOT_VALID ((nsSimpleContentList*)1)
 
-nsIdentifierMapEntry::nsIdentifierMapEntry(const nsIdentifierMapEntry::AtomOrString& aKey)
-  : mKey(aKey)
+nsIdentifierMapEntry::nsIdentifierMapEntry(nsIdentifierMapEntry::KeyType aKey) :
+  nsStringHashKey(&aKey), mNameContentList(nullptr)
 {}
 
-nsIdentifierMapEntry::nsIdentifierMapEntry(const nsIdentifierMapEntry::AtomOrString* aKey)
-  : mKey(aKey ? *aKey : nullptr)
+nsIdentifierMapEntry::nsIdentifierMapEntry(nsIdentifierMapEntry::KeyTypePointer aKey)
+  : nsStringHashKey(aKey), mNameContentList(nullptr)
 {}
 
 nsIdentifierMapEntry::~nsIdentifierMapEntry()
 {}
 
-nsIdentifierMapEntry::nsIdentifierMapEntry(nsIdentifierMapEntry&& aOther)
-  : mKey(mozilla::Move(aOther.mKey))
-  , mIdContentList(mozilla::Move(aOther.mIdContentList))
-  , mNameContentList(mozilla::Move(aOther.mNameContentList))
-  , mChangeCallbacks(mozilla::Move(aOther.mChangeCallbacks))
-  , mImageElement(mozilla::Move(aOther.mImageElement))
-{}
+nsIdentifierMapEntry::nsIdentifierMapEntry(const nsIdentifierMapEntry& aOther)
+  : nsStringHashKey(&aOther.GetKey())
+{ NS_ERROR("Should never be called."); }
 
 void
 nsIdentifierMapEntry::Traverse(nsCycleCollectionTraversalCallback* aCallback)
@@ -1247,6 +1243,7 @@ static already_AddRefed<mozilla::dom::NodeInfo> nullNodeInfo;
 // ==================================================================
 nsIDocument::nsIDocument()
   : nsINode(nullNodeInfo),
+    StyleScope(this),
     mReferrerPolicySet(false),
     mReferrerPolicy(mozilla::net::RP_Default),
     mBlockAllMixedContent(false),
