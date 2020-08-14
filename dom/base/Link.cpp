@@ -50,6 +50,12 @@ Link::ElementHasHref() const
           mElement->HasAttr(kNameSpaceID_XLink, nsGkAtoms::href));
 }
 
+bool
+Link::ElementHasDisabled() const
+{
+  return mElement->HasAttr(kNameSpaceID_None, nsGkAtoms::disabled);
+}
+
 void
 Link::TryDNSPrefetch()
 {

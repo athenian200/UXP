@@ -110,6 +110,7 @@ public:
     SizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf) const;
 
   bool ElementHasHref() const;
+  bool ElementHasDisabled() const;
 
   // This is called by HTMLAnchorElement.
   void TryDNSPrefetch();

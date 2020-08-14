@@ -519,7 +519,17 @@ HTMLLinkElement::GetStyleSheetInfo(nsAString& aTitle,
   nsAutoString title;
   GetAttr(kNameSpaceID_None, nsGkAtoms::title, title);
   title.CompressWhitespace();
-  aTitle.Assign(title);
+  if (Link::ElementHasDisabled()) {
+    if (title.EqualsLiteral("")) {
+      aTitle.Assign(NS_LITERAL_STRING("Untitled"));
+    } else {
+      aTitle.Assign(title);
+    }
+
+    *aIsAlternate = true;
+  } else {
+    aTitle.Assign(title);
+  }
 
   // If alternate, does it have title?
   if (linkTypes & nsStyleLinkElement::eALTERNATE) {
